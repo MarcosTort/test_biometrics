@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:test/local_auth/local_auth.dart';
+import 'package:test/pdf/pdf.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,9 +27,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final LocalAuthentication auth = LocalAuthentication();
   // _SupportState _supportState = _SupportState.unknown;
-  
 
-  @override 
+  @override
   void initState() {
     super.initState();
     // auth.isDeviceSupported().then(
@@ -44,93 +44,20 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LocalAuthBloc()..add(CheckIfDeviceIsSupportedEvent()),
-      child: MaterialApp(
-        home: BlocBuilder<LocalAuthBloc, LocalAuthState>(
-          builder: (context, state) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Plugin example app'),
-              ),
-              body: ListView(
-                padding: const EdgeInsets.only(top: 30),
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      if (state.supportState == SupportState.unknown)
-                        const CircularProgressIndicator()
-                      else if (state.supportState == SupportState.supported)
-                        const Text('This device is supported')
-                      else
-                        const Text('This device is not supported'),
-                      const Divider(height: 100),
-                      Text('Can check biometrics: ${state.canCheckBiometrics}\n'),
-                      ElevatedButton(
-                        onPressed: () => context
-                            .read<LocalAuthBloc>()
-                            .add(CheckBiometricsEvent()),
-                        child: const Text('Check biometrics'),
-                      ),
-                      const Divider(height: 100),
-                      Text('Available biometrics: ${state.availableBiometrics}\n'),
-                      ElevatedButton(
-                        onPressed:() => context.read<LocalAuthBloc>().add(GetAvailbableBiometricsEvent()),
-                        child: const Text('Get available biometrics'),
-                      ),
-                      const Divider(height: 100),
-                      Text('Current State: \n'),
-                      if (state.isAuthenticating)
-                        ElevatedButton(
-                          onPressed: _cancelAuthentication,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const <Widget>[
-                              Text('Cancel Authentication'),
-                              Icon(Icons.cancel),
-                            ],
-                          ),
-                        )
-                      else
-                        Column(
-                          children: <Widget>[
-                            ElevatedButton(
-                              onPressed: (() => context
-                                  .read<LocalAuthBloc>()
-                                  .add(AuthenticateEvent())),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const <Widget>[
-                                  Text('Authenticate'),
-                                  Icon(Icons.perm_device_information),
-                                ],
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => context
-                                  .read<LocalAuthBloc>()
-                                  .add(AuthenticateBiometricsOnlyEvent()),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Text(state.isAuthenticating
-                                      ? 'Cancel'
-                                      : 'Authenticate: biometrics only'),
-                                  const Icon(Icons.fingerprint),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              LocalAuthBloc()..add(CheckIfDeviceIsSupportedEvent()),
         ),
-      ),
+        BlocProvider(
+          create: (context) => PdfBloc(),
+        ),
+      ],
+      child: MaterialApp(
+          home: PageView(
+        children: const [LocalAuthView(), PdfView()],
+      )),
     );
   }
 }
