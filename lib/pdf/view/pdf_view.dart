@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test/pdf/activity.dart';
 import 'package:test/pdf/model.dart';
 import 'package:test/pdf/pdf.dart';
 import 'package:pdf/pdf.dart';
@@ -159,7 +160,6 @@ class PdfPreviewPage extends StatelessWidget {
         allowSharing: true,
         canChangeOrientation: false,
         canChangePageFormat: false,
-      
       ),
     );
   }
@@ -179,7 +179,6 @@ Future<Uint8List> makePdf(Invoice invoice) async {
         ),
         pw.Divider(color: PdfColor.fromHex('#000000'), thickness: 5),
       ]);
-      // pw.Divider(color: PdfColor.fromHex('#000000'), thickness: 5),
     },
     build: (context) {
       return [
@@ -223,30 +222,32 @@ Future<Uint8List> makePdf(Invoice invoice) async {
                                 ]))
                             .toList(),
                       )),
-                  pw.Container(
-                      color: PdfColors.grey300,
-                      child: pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          ' Transaction id',
-                          ' Date',
-                          ' Description',
-                          ' Amount',
-                          ' Fee',
-                          ' Time',
-                          ' Reference Information            ',
-                        ]
-                            .map((e) => pw.Row(children: [
-                                  pw.Text(
-                                    e,
-                                    style: pw.TextStyle(
-                                      color: PdfColors.grey700,
-                                      fontWeight: pw.FontWeight.normal,
+                  pw.Column(
+                    children: exampleActivities10.map((Activity activity) => pw.Container(
+                      width: double.infinity,
+                        color: PdfColors.grey300,
+                        child: pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            activity.transactionId,
+                            activity.date,
+                            activity.description,
+                            activity.ammount,
+                            activity.fee,
+                            activity.time,
+                            activity.referenceInformation,
+                          ]
+                              .map((e) => pw.Row(children: [
+                                    pw.Text(
+                                      e.toString(),
+                                      style: pw.TextStyle(
+                                        color: PdfColors.grey700,
+                                        fontWeight: pw.FontWeight.normal,
+                                      ),
                                     ),
-                                  ),
-                                ]))
-                            .toList(),
-                      )),
+                                  ]))
+                              .toList(),
+                        ))).toList())
                 ],
                 //color: PdfColor.fromHex('#5f5fce'),
               ),

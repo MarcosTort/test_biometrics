@@ -62,8 +62,3 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// enum _SupportState {
-//   unknown,
-//   supported,
-//   unsupported,
-// }
