@@ -1,6 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test/pdf/model.dart';
 import 'package:test/pdf/pdf.dart';
@@ -150,6 +155,11 @@ class PdfPreviewPage extends StatelessWidget {
       ),
       body: PdfPreview(
         build: (context) => makePdf(invoice),
+        allowPrinting: false,
+        allowSharing: true,
+        canChangeOrientation: false,
+        canChangePageFormat: false,
+      
       ),
     );
   }
@@ -157,13 +167,92 @@ class PdfPreviewPage extends StatelessWidget {
 
 Future<Uint8List> makePdf(Invoice invoice) async {
   final pdf = pw.Document();
-  pdf.addPage(pw.Page(
+  final image = await rootBundle.load('lib/assets/logo.png');
+
+  pdf.addPage(pw.MultiPage(
+    pageFormat: PdfPageFormat.a4.copyWith(marginLeft: 0, marginRight: 0),
+    header: (context) {
+      return pw.Column(children: [
+        pw.Image(
+          pw.MemoryImage(image.buffer.asUint8List()),
+          width: 200,
+        ),
+        pw.Divider(color: PdfColor.fromHex('#000000'), thickness: 5),
+      ]);
+      // pw.Divider(color: PdfColor.fromHex('#000000'), thickness: 5),
+    },
     build: (context) {
-      return pw.Center(
-        child: pw.Text('Invoice'),
-      );
+      return [
+        pw.Padding(
+            padding: pw.EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: pw.Center(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'),
+                  pw.SizedBox(height: 20),
+                  pw.Text('Card Activity from Jun 23, 2022 to Aug 22, 2022'),
+                  pw.SizedBox(height: 20),
+                  pw.Container(
+                      color: PdfColor.fromHex('#0c6ab8'),
+                      child: pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          ' Transaction id',
+                          ' Date',
+                          ' Description',
+                          ' Amount',
+                          ' Fee',
+                          ' Time',
+                          ' Reference Information            ',
+                        ]
+                            .map((e) => pw.Row(children: [
+                                  pw.Container(
+                                    width: 0.5,
+                                    height: 15,
+                                    color: PdfColors.white,
+                                  ),
+                                  pw.Text(
+                                    e,
+                                    style: pw.TextStyle(
+                                      color: PdfColors.white,
+                                      fontWeight: pw.FontWeight.bold,
+                                    ),
+                                  ),
+                                ]))
+                            .toList(),
+                      )),
+                  pw.Container(
+                      color: PdfColors.grey300,
+                      child: pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          ' Transaction id',
+                          ' Date',
+                          ' Description',
+                          ' Amount',
+                          ' Fee',
+                          ' Time',
+                          ' Reference Information            ',
+                        ]
+                            .map((e) => pw.Row(children: [
+                                  pw.Text(
+                                    e,
+                                    style: pw.TextStyle(
+                                      color: PdfColors.grey700,
+                                      fontWeight: pw.FontWeight.normal,
+                                    ),
+                                  ),
+                                ]))
+                            .toList(),
+                      )),
+                ],
+                //color: PdfColor.fromHex('#5f5fce'),
+              ),
+            ))
+      ];
     },
   ));
   return pdf.save();
-
 }
